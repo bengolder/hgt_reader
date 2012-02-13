@@ -15,7 +15,7 @@ Example:
      (32.0, 35.0, 598)]
 
 As you can see in the example above, `read()` is the primary function to be
-used. Read take an optional arc_seconds argument that can be set to either 3 or 1:
+used. Read take an optional `arc_seconds` argument that can be set to either `3` or `1`:
 
     def read(filePath, arc_seconds=3):
 
