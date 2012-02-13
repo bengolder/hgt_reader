@@ -35,11 +35,12 @@ def patch_holes(heights, holes, row_size):
         valid_neighbors = [h for h in neighbors if h > -32600]
         if valid_neighbors:
             avg = sum(valid_neighbors) / len(valid_neighbors)
-            print len(valid_neighbors)
-            print avg
+            print 'replacing', heights[x][y],'with',avg
+            heights[x][y] = avg
         else:
             print 'no valid neighbors for this hole!'
-
+            return
+    return heights
 
 def read(filePath, arc_seconds=3):
     number_format = '>h' # big-endian 16-bit signed integer
@@ -48,22 +49,23 @@ def read(filePath, arc_seconds=3):
     rows = []
     row_size = _hgt_size(arc_seconds)
     holes = {}
-    for i in range(row_size):
+    for i in range(row_size): # for each row
         row = []
         for j in range(row_size):
-            data = f.read(2)
+            data = f.read(2) # read 16 bits/2 bytes
+            # for some reason, it comes out as a tuple
             value = struct.unpack(number_format, data)[0]
-            if value < -32600:
+            # keep track of cells without a valid height value
+            if value == -32768:
                 holes[i] = j
             row.append(value)
         rows.append(row)
-    patch_holes(rows, holes, row_size)
-    return rows, holes
+    return patch_holes(rows, holes, row_size)
 
 def test(filePath):
-    data, holes = read(filePath)
-    print holes
-    #for row in data[654:674]:
+    data = read(filePath)
+    for row in data[654:674]:
+        pass
         #print 'sample =', row[-20:]
         #print 'average = %s' % (sum(row) / len(row))
         #print 'max = %s' % max(row)
