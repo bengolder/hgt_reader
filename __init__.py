@@ -3,6 +3,7 @@ This is a tiny repository for a script to read NASA SRTM hgt files, to put the
 data into 3d modeling programs.
 '''
 import struct
+import os
 
 def _hgt_size(arc_seconds):
     # if it is a worldwide file
@@ -35,12 +36,33 @@ def patch_holes(heights, holes, row_size):
         valid_neighbors = [h for h in neighbors if h > -32600]
         if valid_neighbors:
             avg = sum(valid_neighbors) / len(valid_neighbors)
-            print 'replacing', heights[x][y],'with',avg
             heights[x][y] = avg
         else:
             print 'no valid neighbors for this hole!'
             return
     return heights
+
+def frange(start, num_step, step):
+    for i in range(num_step):
+        yield start + i * step
+
+def add_latlon(filePath, heights, row_size):
+    fileName = os.path.splitext(os.path.basename(filePath))[0]
+    try:
+        sgns = fileName[0], fileName[3]
+        lat0, lon0 = float(fileName[1:3]), float(fileName[4:])
+        if sgns[0] == 'S':
+            lat0 *= -1
+        if sgns[1] == 'W':
+            lon0 *= -1
+    except:
+        print 'Incorrect File Name format for hgt file!'
+        return
+    step = 1.0/(row_size - 1)
+    lats = [a for a in frange(lat0, row_size, step)]
+    lons = [b for b in frange(lon0, row_size, step)]
+    new_rows = [zip(lats, lons, h) for h in heights]
+    return new_rows
 
 def read(filePath, arc_seconds=3):
     number_format = '>h' # big-endian 16-bit signed integer
@@ -60,16 +82,15 @@ def read(filePath, arc_seconds=3):
                 holes[i] = j
             row.append(value)
         rows.append(row)
-    return patch_holes(rows, holes, row_size)
+    heights = patch_holes(rows, holes, row_size)
+    points = add_latlon(filePath, heights, row_size)
+    return points
 
 def test(filePath):
     data = read(filePath)
-    for row in data[654:674]:
-        pass
-        #print 'sample =', row[-20:]
-        #print 'average = %s' % (sum(row) / len(row))
-        #print 'max = %s' % max(row)
-        #print 'min = %s' % min(row)
+    last = len(data) - 1
+    print data[last][:5]
+    print data[last][-5:]
 
 
 if __name__=='__main__':
