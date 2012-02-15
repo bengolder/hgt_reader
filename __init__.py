@@ -8,6 +8,8 @@ Example:
     >>> file_path = '/Users/benjamin/projects/ActiveMatter/data/N31E034.hgt'
     >>> data = hgt_reader.read(file_path)
     >>> from pprint import pprint
+    >>> #The data sample below is incorrect.
+    >>> #the 1st and 2nd numbers should be reversed
     >>> pprint(data[-1][-5:])
     [(31.996666666666666, 34.99666666666667, 585),
      (31.997499999999999, 34.997500000000002, 587),
@@ -84,7 +86,8 @@ def add_latlon(filePath, heights, row_size):
     step = 1.0/(row_size - 1)
     lats = [a for a in frange(lat0, row_size, step)]
     lons = [b for b in frange(lon0, row_size, step)]
-    new_rows = [zip(lats, lons, h) for h in heights]
+    # switched to (lon, lat, z) because that is the (x, y, z)!
+    new_rows = [zip(lons, lats, h) for h in heights]
     return new_rows
 
 def read(filePath, arc_seconds=3):
