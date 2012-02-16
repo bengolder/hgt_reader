@@ -84,10 +84,19 @@ def add_latlon(filePath, heights, row_size):
         print 'Incorrect File Name format for hgt file!'
         return
     step = 1.0/(row_size - 1)
+    print 'step = %s' % step
     lats = [a for a in frange(lat0, row_size, step)]
     lons = [b for b in frange(lon0, row_size, step)]
     # switched to (lon, lat, z) because that is the (x, y, z)!
-    new_rows = [zip(lons, lats, h) for h in heights]
+    new_rows = []
+    i = 0
+    for lon in lons:
+        new_row = []
+        for lat in lats:
+            point = (lon, lat, heights[i])
+            new_row.append(point)
+            i += 1
+        new_rows.append(new_row)
     return new_rows
 
 def read(filePath, arc_seconds=3):
