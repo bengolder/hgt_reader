@@ -39,7 +39,9 @@ def _hgt_size(arc_seconds):
         raise
 
 def patch_holes(heights, holes, row_size):
+    count = 0
     for x in holes:
+        count += 1
         y = holes[x]
         neighbors = []
         if x > 0:
@@ -65,6 +67,7 @@ def patch_holes(heights, holes, row_size):
         else:
             print 'no valid neighbors for this hole!'
             return
+    print '%s holes patched!' % count
     return heights
 
 def frange(start, num_step, step):
@@ -84,18 +87,18 @@ def add_latlon(filePath, heights, row_size):
         print 'Incorrect File Name format for hgt file!'
         return
     step = 1.0/(row_size - 1)
-    print 'step = %s' % step
     lats = [a for a in frange(lat0, row_size, step)]
+    lats.reverse() # because the heights are read across, then top to bottom
     lons = [b for b in frange(lon0, row_size, step)]
+    # build with a row per each lat, in descending order (top to bottom)
+    # then a point in each lat row for each lon
     # switched to (lon, lat, z) because that is the (x, y, z)!
     new_rows = []
-    i = 0
-    for lon in lons:
+    for i, lat in enumerate(lats):
         new_row = []
-        for lat in lats:
-            point = (lon, lat, heights[i])
+        for j, lon in enumerate(lons):
+            point = (lon, lat, heights[i][j])
             new_row.append(point)
-            i += 1
         new_rows.append(new_row)
     return new_rows
 
@@ -113,7 +116,7 @@ def read(filePath, arc_seconds=3):
             # for some reason, it comes out as a tuple
             value = struct.unpack(number_format, data)[0]
             # keep track of cells without a valid height value
-            if value == -32768:
+            if value < -3200:
                 holes[i] = j
             row.append(value)
         rows.append(row)
