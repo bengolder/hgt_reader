@@ -1,6 +1,6 @@
 '''This module provides a simple script for converting hgt coordinates into
 Rhino points. Keep in mind that the 'points' in an hgt file are based on
-longitude and latitude, in the EPSG 436 geographic projection. This means that
+longitude and latitude, in the EPSG 4362 geographic projection. This means that
 at some places on the earth, the longitude (or 'y') coordinates are about 90
 meters apart, while they are closer together in areas closer to the poles. The
 height values are measured in meters about sea level, and therefore if these
